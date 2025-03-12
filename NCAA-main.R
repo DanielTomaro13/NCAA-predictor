@@ -108,27 +108,7 @@ sum(Results_2019$win_prob_glm_1 == Results_2019$Result )/nrow(Results_2019)
 
 ggplot(Results_2019) + geom_point(aes(x = Spread, y = Spread_Pred_lm_1))
 
-#### Next Weeks Games ####
-NCAAF_L1_Future$Date <- as.Date(NCAAF_L1_Future$Date, origin = "1970-01-01")
-NCAAF_This_Week <- NCAAF_L1_Future %>% filter(Date > "2020-11-08", Date <= "2020-11-15") %>% 
-  select(Date, Season, Team, Opponent, Home, Neutral_Location, Game_ID)
-
-NCAAF_This_Week <- NCAAF_This_Week %>% 
-  left_join(NCAAF_L1_Teams %>% select(Team, ELO), by = c("Team" = "Team"))
-
-NCAAF_This_Week <- NCAAF_This_Week %>% 
-  left_join(NCAAF_L1_Teams %>% select(Team, ELO), by = c("Opponent" = "Team"))
-
-names(NCAAF_This_Week) <- c("Date", "Season", "Team", "Opponent", "Home", 
-                            "Neutral_Location", "Game_ID", "ELO", "Opp_ELO")
-
-NCAAF_This_Week <- NCAAF_This_Week %>% mutate(
-  Elo_Difference = ELO - Opp_ELO
-)
-
-NCAAF_This_Week$Spread_Pred_lm_1 <- predict(spread_lm_1, newdata = NCAAF_This_Week)
-NCAAF_This_Week$win_prob_glm_1 <- predict(win_prob_glm_1, newdata = NCAAF_This_Week, type = "response")
-View(NCAAF_This_Week %>% arrange(desc(win_prob_glm_1)))
+############################
 
 
 
