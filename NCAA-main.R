@@ -88,9 +88,25 @@ NCAAF_L1 <- NCAAF_L1 %>% mutate(
   Elo_Forecast_Result = ifelse(Elo_Forecast_Pred == Result, 1, 0),
 )
 
+#### 2016 Naive Win Rate ####
+Results_2016 <- NCAAF_L1 %>% filter(Season == 2016)
+sum(Results_2016$Elo_Forecast_Result)/nrow(Results_2016) * 100
+
+#### 2017 Naive Win Rate ####
+Results_2017 <- NCAAF_L1 %>% filter(Season == 2017)
+sum(Results_2017$Elo_Forecast_Result)/nrow(Results_2017) * 100
+
+#### 2018 Naive Win Rate ####
+Results_2018 <- NCAAF_L1 %>% filter(Season == 2018)
+sum(Results_2018$Elo_Forecast_Result)/nrow(Results_2018)  * 100
+
 #### 2019 Naive Win Rate ####
 Results_2019 <- NCAAF_L1 %>% filter(Season == 2019)
-sum(Results_2019$Elo_Forecast_Result)/nrow(Results_2019) 
+sum(Results_2019$Elo_Forecast_Result)/nrow(Results_2019) * 100
+
+#### 2000-2019 Naive Win Rate ####
+Results_all <- NCAAF_L1 %>% filter(Season >= 2000 & Season <= 2019)
+sum(Results_all$Elo_Forecast_Result)/nrow(Results_all) * 100
 
 #### Spread Forecast ####
 spread_lm_1 <- lm(Spread ~ Elo_Difference + Home, data = NCAAF_L1 %>% filter(Season > 2013, Season <= 2018))
@@ -101,22 +117,23 @@ Results_2019$Spread_Pred_lm_1 <- predict(spread_lm_1, newdata = Results_2019)
 win_prob_glm_1 <- glm(Result ~ Elo_Difference + Home, family = binomial, NCAAF_L1 %>% filter(Season > 2013, Season <= 2018))
 NCAAF_L1$win_prob_glm_1 <- predict(win_prob_glm_1, newdata = NCAAF_L1, type = "response")
 
-#### Test Model on 2019 ####
+#### Spread Forecast All ####
+spread_lm_2 <- lm(Spread ~ Elo_Difference + Home, data = NCAAF_L1 %>% filter(Season >= 2000, Season <= 2018))
+NCAAF_L1$Spread_Pred_lm_2 <- predict(spread_lm_2, newdata = NCAAF_L1)
+Results_2019$Spread_Pred_lm_2 <- predict(spread_lm_2, newdata = Results_2019)
+
+#### Win Forecast All ####
+win_prob_glm_2 <- glm(Result ~ Elo_Difference + Home, family = binomial, NCAAF_L1 %>% filter(Season >= 2000, Season <= 2018))
+NCAAF_L1$win_prob_glm_2 <- predict(win_prob_glm_2, newdata = NCAAF_L1, type = "response")
+
+#### Test Model####
 Results_2019$win_prob_glm_1 <- predict(win_prob_glm_1, newdata = Results_2019)
 Results_2019$win_prob_glm_1 <- ifelse(Results_2019$Spread_Pred_lm_1 >= 0.5, 1, 0)
-sum(Results_2019$win_prob_glm_1 == Results_2019$Result )/nrow(Results_2019)
+sum(Results_2019$win_prob_glm_1 == Results_2019$Result )/nrow(Results_2019) * 100
+
+Results_2019$win_prob_glm_2 <- predict(win_prob_glm_2, newdata = Results_2019)
+Results_2019$win_prob_glm_2 <- ifelse(Results_2019$Spread_Pred_lm_2 >= 0.5, 1, 0)
+sum(Results_2019$win_prob_glm_2 == Results_2019$Result )/nrow(Results_2019) * 100
 
 ggplot(Results_2019) + geom_point(aes(x = Spread, y = Spread_Pred_lm_1))
-
-############################
-
-
-
-
-
-
-
-
-
-
-
+ggplot(Results_2019) + geom_point(aes(x = Spread, y = Spread_Pred_lm_2))
